@@ -1,0 +1,34 @@
+# terraform.tfvars.example
+# 
+# Copie este archivo como 'terraform.tfvars' y complete con sus credenciales
+# NO incluya terraform.tfvars en git por contener información sensible
+#
+# Comando: cp terraform.tfvars.example terraform.tfvars
+
+# ================================
+# AWS CREDENTIALS
+# ================================
+# Obtenga estas credenciales desde AWS Console > IAM > Users > Security credentials
+aws_access_key_id     = ""     # Su AWS Access Key ID
+aws_secret_access_key = ""     # Su AWS Secret Access Key
+aws_region            = "us-west-2"  # Región AWS (recomendado: us-west-2)
+
+# ================================
+# DATADOG CREDENTIALS  
+# ================================
+# Obtenga estas credenciales desde Datadog > Organization Settings > API Keys
+datadog_api_key = ""           # Su Datadog API Key (32 caracteres)
+datadog_app_key = ""           # Su Datadog Application Key (40 caracteres)
+
+# ================================
+# NOTAS DE CONFIGURACIÓN
+# ================================
+# 1. Datadog debe estar configurado para US3 site (us3.datadoghq.com)
+# 2. AWS user debe tener permisos para EC2, IAM, y CloudWatch
+# 3. Asegúrese de tener la key pair "AI4Devs" en AWS para SSH access
+# 4. Para Apple M1, use: export GODEBUG=asyncpreemptoff=1
+#
+# Deployment:
+# terraform init
+# terraform plan
+# terraform apply -auto-approve

@@ -68,7 +68,7 @@ npm install
 ```
 cd backend
 npm run build
-````
+```
 4. Inicia el servidor backend:
 ```
 cd backend
@@ -160,3 +160,179 @@ POST http://localhost:3010/candidates
 }
 ```
 
+
+---
+
+## 🚀 Despliegue con Terraform (AWS + Datadog)
+
+### Deployment Automatizado en AWS
+
+Este proyecto incluye una configuración completa de Terraform para despliegue automático en AWS con observabilidad Datadog integrada.
+
+#### 📋 Prerequisitos
+
+1. **AWS CLI configurado**:
+```bash
+aws configure
+# Configurar Access Key, Secret Key, Region: us-west-2
+```
+
+2. **Terraform instalado** (≥ 1.0):
+```bash
+# macOS
+brew install terraform
+
+# Verificar instalación
+terraform version
+```
+
+3. **Credenciales Datadog**:
+- API Key de Datadog
+- Application Key de Datadog
+- Cuenta en Datadog US3 (us3.datadoghq.com)
+
+#### 🔧 Configuración Inicial
+
+1. **Clonar y preparar el repositorio**:
+```bash
+git clone <repository-url>
+cd AI4Devs-monitoring-JairoPolo
+```
+
+2. **Configurar variables de Terraform**:
+```bash
+# Copiar template de variables y completar credenciales
+cd tf
+cp terraform.tfvars.example terraform.tfvars
+
+# Editar terraform.tfvars con sus credenciales reales:
+# - AWS Access Key y Secret Key
+# - Datadog API Key y App Key  
+# - Verificar región us-west-2
+```
+
+3. **Inicializar Terraform**:
+```bash
+# Aplicar fix para Apple M1 (si aplica)
+export GODEBUG=asyncpreemptoff=1
+
+# Inicializar providers (desde directorio tf)
+cd tf
+terraform init
+```
+
+#### 🚀 Despliegue
+
+**Deployment completo con un comando**:
+```bash
+# Desplegar infraestructura completa (desde directorio tf)
+export GODEBUG=asyncpreemptoff=1  # Solo Apple M1
+terraform apply -auto-approve
+```
+
+**Lo que se despliega automáticamente**:
+- ✅ EC2 Instance (t2.micro) con Amazon Linux 2
+- ✅ Security Groups configurados (ports 22, 3000, 8080, 5432)
+- ✅ IAM Roles para integración Datadog
+- ✅ Datadog Integration completa con AWS
+- ✅ Docker + Docker Compose instalación automática
+- ✅ PostgreSQL Database con schema y datos seed
+- ✅ Backend Node.js con Prisma ORM
+- ✅ Frontend React optimizado para producción
+- ✅ Datadog Agent con APM y logs centralizados
+
+#### 🌐 Acceso a la Aplicación
+
+Después del deployment (8-12 minutos), tendrás acceso a:
+
+```bash
+# Obtener URLs de acceso
+terraform output
+```
+
+**Endpoints disponibles**:
+- **Frontend**: http://[PUBLIC_IP]:3000
+- **Backend API**: http://[PUBLIC_IP]:8080
+- **Health Check**: http://[PUBLIC_IP]:8080/health
+- **SSH**: ssh -i ~/.ssh/AI4Devs.pem ec2-user@[PUBLIC_IP]
+
+#### 📊 Monitoreo con Datadog
+
+Una vez desplegado, puedes verificar el monitoreo en:
+
+1. **Datadog Dashboard**: https://us3.datadoghq.com
+2. **Infrastructure → Host Map**: Buscar tu instancia EC2
+3. **APM → Services**: Ver métricas de performance
+4. **Logs**: Logs centralizados de todos los servicios
+
+**Tags de búsqueda**:
+- env:production
+- service:ai4devs-monorepo
+- region:us-west-2
+
+#### 🔄 Gestión del Despliegue
+
+**Verificar estado**:
+```bash
+terraform show                    # Ver recursos desplegados
+aws ec2 describe-instances         # Verificar instancia
+curl http://[IP]:3000             # Probar frontend
+curl http://[IP]:8080/health      # Probar backend
+```
+
+**Actualizar despliegue**:
+```bash
+# Para cambios menores (configuración, variables)
+export GODEBUG=asyncpreemptoff=1  # Solo Apple M1
+terraform plan                    # Ver cambios pendientes
+terraform apply                   # Aplicar cambios
+
+# Para cambios en manifiestos/user-data (RECOMENDADO)
+export GODEBUG=asyncpreemptoff=1  # Solo Apple M1
+terraform destroy -auto-approve && terraform apply -auto-approve
+
+# Encender instancia apagada (mantiene datos)
+export GODEBUG=asyncpreemptoff=1  # Solo Apple M1
+terraform apply -auto-approve     # Solo encender sin recrear
+```
+
+**Limpiar recursos**:
+```bash
+export GODEBUG=asyncpreemptoff=1  # Solo Apple M1
+terraform destroy -auto-approve
+```
+
+#### 🛠️ Solución de Problemas
+
+**Apple M1 Timeout**:
+```bash
+export GODEBUG=asyncpreemptoff=1
+```
+
+**Verificar conectividad AWS**:
+```bash
+aws sts get-caller-identity --region us-west-2
+```
+
+**Ver logs de deployment**:
+```bash
+# SSH a la instancia (si tienes la key)
+ssh -i ~/.ssh/AI4Devs.pem ec2-user@[PUBLIC_IP]
+sudo tail -f /var/log/cloud-init-output.log
+```
+
+#### 📁 Estructura Terraform
+
+```
+├── provider.tf              # Providers AWS y Datadog
+├── variables.tf              # Variables de configuración
+├── ec2.tf                   # Instancia EC2 con user-data
+├── security_groups.tf       # Reglas de firewall
+├── datadog-iam.tf          # IAM roles para Datadog
+├── datadog-integration.tf   # Integración AWS-Datadog
+├── outputs.tf              # URLs y información de acceso
+└── terraform.tfvars        # Variables (NO incluir en git)
+```
+
+🎯 **Con este setup, tendrás un deployment completo de la aplicación con observabilidad enterprise-grade en menos de 15 minutos.**
+ENDFILE < /dev/null

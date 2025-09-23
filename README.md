@@ -321,6 +321,92 @@ ssh -i ~/.ssh/AI4Devs.pem ec2-user@[PUBLIC_IP]
 sudo tail -f /var/log/cloud-init-output.log
 ```
 
+#### 📝 **Comandos para Ver Logs del Deployment**
+
+Una vez conectado por SSH, puedes monitorear el deployment con estos comandos:
+
+**1. Log Principal del Deployment**:
+```bash
+sudo tail -f /var/log/ai4devs-deployment.log
+```
+
+**2. Log Completo de Cloud-Init**:
+```bash
+sudo tail -f /var/log/cloud-init-output.log
+```
+
+**3. Log de Finalización**:
+```bash
+cat /var/log/deployment-complete.log
+```
+
+**4. Logs de Docker Compose**:
+```bash
+cd /opt/ai4devs
+sudo docker-compose logs -f
+```
+
+**5. Logs de Servicios Específicos**:
+```bash
+# Backend
+sudo docker-compose logs -f backend
+
+# Frontend  
+sudo docker-compose logs -f frontend
+
+# Base de datos
+sudo docker-compose logs -f db
+```
+
+**6. Estado de Contenedores**:
+```bash
+cd /opt/ai4devs
+sudo docker-compose ps
+sudo docker ps
+```
+
+**7. Logs del Sistema (Cloud-Init)**:
+```bash
+# Log completo de inicialización
+sudo journalctl -u cloud-final -f
+
+# Log de cloud-init
+sudo cat /var/log/cloud-init.log
+```
+
+**8. Ver Logs en Tiempo Real Durante Deployment**:
+```bash
+# Deployment en progreso
+sudo tail -f /var/log/ai4devs-deployment.log
+
+# Ver múltiples logs simultáneamente
+sudo tail -f /var/log/ai4devs-deployment.log /var/log/cloud-init-output.log
+```
+
+**9. Debug Commands**:
+```bash
+# Verificar estructura del repositorio clonado
+ls -la /opt/ai4devs/
+
+# Ver contenido del .env generado
+cat /opt/ai4devs/.env
+
+# Ver docker-compose generado
+cat /opt/ai4devs/docker-compose.yml
+
+# Ver Dockerfiles generados
+cat /opt/ai4devs/backend/Dockerfile
+cat /opt/ai4devs/frontend/Dockerfile
+```
+
+**🔍 Comando Recomendado para Monitoreo Completo**:
+```bash
+# Una vez conectado por SSH
+sudo tail -f /var/log/ai4devs-deployment.log
+```
+
+*Este log contiene todas las etapas marcadas con timestamps desde el clone del repositorio hasta el deployment completo.*
+
 #### 📁 Estructura Terraform
 
 ```

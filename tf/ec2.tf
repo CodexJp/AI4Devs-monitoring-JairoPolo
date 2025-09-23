@@ -21,7 +21,18 @@ resource "aws_instance" "monorepo_instance" {
     # System updates and dependencies
     log "Installing system dependencies..."
     yum update -y
-    yum install -y docker git curl wget unzip nodejs npm
+    yum install -y docker git curl wget unzip
+    
+    # Install Node.js and npm using AWS recommended method (nvm)
+    log "Installing Node.js and npm via nvm (AWS recommended)..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    source ~/.bashrc
+    nvm install --lts
+    nvm use --lts
+    
+    # Verify Node.js installation
+    node --version
+    npm --version
     
     # Install Docker Compose
     log "Installing Docker Compose..."
@@ -284,14 +295,15 @@ EOL
     # Run Prisma migrations first (before starting containers)
     cd /opt/ai4devs/backend
     
-    # Setup PATH for Node.js
-    export PATH="/usr/bin:$PATH"
+    # Ensure nvm and Node.js are available in current shell
+    source ~/.bashrc
+    nvm use --lts
     
     # Install dependencies for migration process
-    /usr/bin/npm install --production=false
+    npm install --production=false
     
     # Generate Prisma client
-    /usr/bin/npx prisma generate
+    npx prisma generate
     
     # Wait for database to be ready and run migrations
     cd /opt/ai4devs
@@ -305,11 +317,12 @@ EOL
     
     # Run migrations from backend directory
     cd /opt/ai4devs/backend
-    DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" /usr/bin/npx prisma migrate deploy
+    source ~/.bashrc && nvm use --lts
+    DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" npx prisma migrate deploy
     
     # Seed the database
     log "Seeding database..."
-    DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" /usr/bin/npx prisma db seed || echo "Seed completed or skipped"
+    DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" npx prisma db seed || echo "Seed completed or skipped"
     
     # Now start the full application stack
     log "Starting full application stack..."

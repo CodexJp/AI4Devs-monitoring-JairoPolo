@@ -340,29 +340,20 @@ sudo tail -f /var/log/cloud-init-output.log
 cat /var/log/deployment-complete.log
 ```
 
-**4. Logs de Docker Compose**:
+**4. Logs de Docker**:
 ```bash
 cd /opt/ai4devs
-sudo docker-compose logs -f
-```
-
-**5. Logs de Servicios Específicos**:
-```bash
-# Backend
-sudo docker-compose logs -f backend
-
-# Frontend  
-sudo docker-compose logs -f frontend
-
-# Base de datos
-sudo docker-compose logs -f db
+# Ver logs de todos los contenedores
+sudo docker logs -f ai4devs-backend-1
+sudo docker logs -f ai4devs-frontend-1
+sudo docker logs -f ai4devs-db-1
 ```
 
 **6. Estado de Contenedores**:
 ```bash
 cd /opt/ai4devs
-sudo docker-compose ps
 sudo docker ps
+sudo docker ps -a
 ```
 
 **7. Logs del Sistema (Cloud-Init)**:

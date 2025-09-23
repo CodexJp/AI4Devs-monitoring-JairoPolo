@@ -202,7 +202,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_API_URL=http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):8080
       - DD_ENV=production
       - DD_SERVICE=ai4devs-frontend
       - DD_VERSION=1.0.0
@@ -362,9 +362,9 @@ EOL
     # Final health check
     log "Performing health checks..."
     
-    # Wait for backend to be ready
+    # Wait for backend to be ready (using root endpoint instead of /health)
     for i in {1..30}; do
-        if curl -f http://localhost:8080/health > /dev/null 2>&1; then
+        if curl -f http://localhost:8080/ > /dev/null 2>&1; then
             log "Backend health check passed"
             break
         fi

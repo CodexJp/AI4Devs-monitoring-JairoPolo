@@ -284,11 +284,14 @@ EOL
     # Run Prisma migrations first (before starting containers)
     cd /opt/ai4devs/backend
     
+    # Setup PATH for Node.js
+    export PATH="/usr/bin:$PATH"
+    
     # Install dependencies for migration process
-    npm install --production=false
+    /usr/bin/npm install --production=false
     
     # Generate Prisma client
-    npx prisma generate
+    /usr/bin/npx prisma generate
     
     # Wait for database to be ready and run migrations
     cd /opt/ai4devs
@@ -302,11 +305,11 @@ EOL
     
     # Run migrations from backend directory
     cd /opt/ai4devs/backend
-    DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" npx prisma migrate deploy
+    DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" /usr/bin/npx prisma migrate deploy
     
     # Seed the database
     log "Seeding database..."
-    DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" npx prisma db seed || echo "Seed completed or skipped"
+    DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" /usr/bin/npx prisma db seed || echo "Seed completed or skipped"
     
     # Now start the full application stack
     log "Starting full application stack..."

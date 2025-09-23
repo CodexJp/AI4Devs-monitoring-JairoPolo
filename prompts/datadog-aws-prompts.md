@@ -84,7 +84,7 @@ quiero que audites el plan y dejes solo las tareas necesiras para que la integra
 ```markdown
 Acabo de generar de ceros desde la consola de Datadog, un nuevo Api Key, acá te dejo el request que estoy intentando ahcer desde postman, pero me está dando forbidden [Image #1] [Image #2] acá el curl: 
 
-curl --location 'https://api.datadoghq.com/api/v1/validate' --header 'Accept: application/json' --header 'DD-API-KEY: bbb353267294609a9f0ed25de9d784af'
+curl --location 'https://api.datadoghq.com/api/v1/validate' --header 'Accept: application/json' --header 'DD-API-KEY: secreto-nacional'
 ```
 
 ### Prompt #9: Prompt para corregir problema de seguridad en secrets hardcodeados

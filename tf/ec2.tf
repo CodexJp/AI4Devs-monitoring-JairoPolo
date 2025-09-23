@@ -1,7 +1,7 @@
 # Single EC2 Instance para Monorepo con Datadog Integration
 resource "aws_instance" "monorepo_instance" {
   ami                    = "ami-024e4b8b6ef78434a" # Amazon Linux 2 AMI - us-west-2 (latest)
-  instance_type          = "t2.micro"
+  instance_type          = "t3.small"
   key_name               = "AI4Devs" # Enabling SSH access
   iam_instance_profile   = aws_iam_instance_profile.datadog_instance_profile.name
   vpc_security_group_ids = [aws_security_group.unified_sg.id]

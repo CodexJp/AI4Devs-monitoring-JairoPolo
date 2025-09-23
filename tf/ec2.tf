@@ -36,13 +36,13 @@ resource "aws_instance" "monorepo_instance" {
     log "Verifying nvm installation..."
     nvm --version
     
-    # Install latest Node.js
-    log "Installing latest Node.js..."
-    nvm install node
+    # Install Node.js LTS 18 (compatible with Amazon Linux 2)
+    log "Installing Node.js LTS 18 (Amazon Linux 2 compatible)..."
+    nvm install 18
     
     # Use the installed Node.js version
-    log "Setting Node.js as default version..."
-    nvm use node
+    log "Setting Node.js 18 as default version..."
+    nvm use 18
     
     # Verify Node.js installation
     log "Verifying Node.js installation..."
@@ -313,7 +313,7 @@ EOL
     # Load nvm and use Node.js for migrations
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm use node
+    nvm use 18
     
     # Install dependencies for migration process
     npm install --production=false

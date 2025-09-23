@@ -77,7 +77,7 @@ EOL
     yum install -y git
     
     # Clone the actual repository
-    git clone https://github.com/JairoPolo/AI4Devs-monitoring-JairoPolo.git ai4devs
+    git clone https://github.com/CodexJp/AI4Devs-monitoring-JairoPolo.git ai4devs
     cd /opt/ai4devs
     
     # Verify repository structure

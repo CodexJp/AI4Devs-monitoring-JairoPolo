@@ -23,14 +23,29 @@ resource "aws_instance" "monorepo_instance" {
     yum update -y
     yum install -y docker git curl wget unzip
     
-    # Install Node.js and npm using AWS recommended method (nvm)
-    log "Installing Node.js and npm via nvm (AWS recommended)..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-    source ~/.bashrc
-    nvm install --lts
-    nvm use --lts
+    # Install Node.js and npm using nvm (Latest method for Amazon Linux)
+    log "Installing Node.js and npm via nvm..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    
+    # Reload shell to make nvm available
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    
+    # Verify nvm installation
+    log "Verifying nvm installation..."
+    nvm --version
+    
+    # Install latest Node.js
+    log "Installing latest Node.js..."
+    nvm install node
+    
+    # Use the installed Node.js version
+    log "Setting Node.js as default version..."
+    nvm use node
     
     # Verify Node.js installation
+    log "Verifying Node.js installation..."
     node --version
     npm --version
     
@@ -295,9 +310,10 @@ EOL
     # Run Prisma migrations first (before starting containers)
     cd /opt/ai4devs/backend
     
-    # Ensure nvm and Node.js are available in current shell
-    source ~/.bashrc
-    nvm use --lts
+    # Load nvm and use Node.js for migrations
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm use node
     
     # Install dependencies for migration process
     npm install --production=false
@@ -317,7 +333,6 @@ EOL
     
     # Run migrations from backend directory
     cd /opt/ai4devs/backend
-    source ~/.bashrc && nvm use --lts
     DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb" npx prisma migrate deploy
     
     # Seed the database

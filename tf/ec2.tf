@@ -125,7 +125,7 @@ EOL
     log "Repository cloned successfully. Contents:"
     ls -la
     
-    # Create environment file
+    # Create environment file with correct database host
     cat > .env << 'EOL'
 DB_PASSWORD=D1ymf8wyQEGthFR1E9xhCq
 DB_USER=LTIdbUser
@@ -133,6 +133,17 @@ DB_NAME=LTIdb
 DB_PORT=5432
 DATABASE_URL=postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@db:5432/LTIdb
 NODE_ENV=production
+DATADOG_API_KEY=${var.datadog_api_key}
+EOL
+    
+    # Also create backend-specific .env file to ensure proper configuration
+    cat > backend/.env << 'EOL'
+DATABASE_URL=postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@db:5432/LTIdb
+NODE_ENV=production
+PORT=8080
+DD_ENV=production
+DD_SERVICE=ai4devs-backend
+DD_VERSION=1.0.0
 DATADOG_API_KEY=${var.datadog_api_key}
 EOL
     
@@ -244,20 +255,23 @@ FROM node:18-slim
 
 WORKDIR /usr/src/app
 
-# Install OpenSSL and dependencies for Prisma
-RUN apt-get update && apt-get install -y openssl ca-certificates
+# Install OpenSSL, curl and dependencies for Prisma
+RUN apt-get update && apt-get install -y openssl ca-certificates curl
 
-# Copy package files
+# Copy package files first for better layer caching
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy source code
-COPY . .
+# Copy Prisma schema first to generate client
+COPY prisma ./prisma/
 
 # Generate Prisma client
 RUN npx prisma generate
+
+# Copy rest of source code
+COPY . .
 
 # Build the application
 RUN npm run build
@@ -299,8 +313,8 @@ FROM node:18-slim
 
 WORKDIR /app
 
-# Install serve globally
-RUN npm install -g serve
+# Install curl for health checks and serve globally
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* && npm install -g serve
 
 # Copy built application
 COPY --from=builder /app/build ./build

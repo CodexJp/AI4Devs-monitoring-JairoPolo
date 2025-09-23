@@ -393,9 +393,33 @@ EOL
     # Regenerate Prisma client with correct configuration
     docker exec ai4devs-backend-1 npx prisma generate
     
-    # Execute database seed
-    log "Seeding database with sample data..."
-    docker exec ai4devs-backend-1 npx prisma db seed || echo "Seed completed or no seed script found"
+    # Install tsx for running TypeScript files (more compatible than ts-node)
+    log "Installing tsx for seed execution..."
+    docker exec ai4devs-backend-1 npm install -D tsx
+    
+    # Configure seed in package.json to use tsx
+    log "Configuring seed script in package.json..."
+    docker exec ai4devs-backend-1 sh -c 'cat > /tmp/update_package.js << "ENDJS"
+const fs = require("fs");
+const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
+packageJson.prisma = { seed: "npx tsx prisma/seed.ts" };
+fs.writeFileSync("package.json", JSON.stringify(packageJson, null, 2));
+console.log("Updated package.json with tsx seed config");
+ENDJS'
+    
+    docker exec ai4devs-backend-1 node /tmp/update_package.js
+    
+    # Execute database seed using tsx (the method that works)
+    log "Seeding database with sample data using tsx..."
+    docker exec ai4devs-backend-1 npx tsx prisma/seed.ts
+    
+    # Verify seed was successful
+    log "Verifying seed data was created..."
+    CANDIDATE_COUNT=$(docker exec ai4devs-db-1 psql -U LTIdbUser -d LTIdb -t -c "SELECT COUNT(*) FROM \"Candidate\";" | xargs)
+    log "Created $CANDIDATE_COUNT candidates in database"
+    
+    # Also execute with prisma db seed for completeness
+    docker exec ai4devs-backend-1 npx prisma db seed || echo "Prisma seed completed"
     
     # Restart backend container to ensure proper connection
     log "Restarting backend container..."

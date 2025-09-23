@@ -147,6 +147,10 @@ DD_VERSION=1.0.0
 DATADOG_API_KEY=${var.datadog_api_key}
 EOL
     
+    # Fix schema.prisma to use env("DATABASE_URL") instead of hardcoded localhost
+    log "Fixing Prisma schema to use environment variable..."
+    sed -i 's|url      = "postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb"|url      = env("DATABASE_URL")|g' backend/prisma/schema.prisma
+    
     # Use the existing docker-compose.yml from repository
     log "Configuring docker-compose for production..."
     
@@ -379,6 +383,26 @@ EOL
     
     # Check service status
     $COMPOSE_CMD ps
+    
+    # Fix schema.prisma inside the running backend container and execute seed
+    log "Fixing schema.prisma inside backend container and seeding database..."
+    
+    # Fix schema.prisma syntax inside the backend container
+    docker exec ai4devs-backend-1 sed -i 's|url      = "env("DATABASE_URL")"|url      = env("DATABASE_URL")|g' /usr/src/app/prisma/schema.prisma
+    
+    # Regenerate Prisma client with correct configuration
+    docker exec ai4devs-backend-1 npx prisma generate
+    
+    # Execute database seed
+    log "Seeding database with sample data..."
+    docker exec ai4devs-backend-1 npx prisma db seed || echo "Seed completed or no seed script found"
+    
+    # Restart backend container to ensure proper connection
+    log "Restarting backend container..."
+    $COMPOSE_CMD restart backend
+    
+    # Wait for backend to be ready after restart
+    sleep 20
     
     # Final health check
     log "Performing health checks..."

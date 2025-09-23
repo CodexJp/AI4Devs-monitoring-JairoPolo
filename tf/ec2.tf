@@ -57,10 +57,17 @@ resource "aws_instance" "monorepo_instance" {
     node --version
     npm --version
     
-    # Install Docker Compose
-    log "Installing Docker Compose..."
-    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
+    # Check if docker compose is available, install if not
+    log "Checking Docker Compose availability..."
+    if docker compose version > /dev/null 2>&1; then
+        log "Docker Compose available as 'docker compose'"
+        COMPOSE_CMD="docker compose"
+    else
+        log "Installing Docker Compose binary..."
+        curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+        COMPOSE_CMD="docker-compose"
+    fi
     
     # Docker setup
     log "Configuring Docker..."
@@ -331,7 +338,7 @@ EOL
     cd /opt/ai4devs
     
     # Start only database first
-    docker-compose up -d db
+    $COMPOSE_CMD up -d db
     
     # Wait for database to be ready
     log "Waiting for database to be ready..."
@@ -350,14 +357,14 @@ EOL
     cd /opt/ai4devs
     
     # Build and start all services
-    docker-compose up -d --build
+    $COMPOSE_CMD up -d --build
     
     # Wait for services to be ready
     log "Waiting for services to start..."
     sleep 30
     
     # Check service status
-    docker-compose ps
+    $COMPOSE_CMD ps
     
     # Final health check
     log "Performing health checks..."
@@ -393,8 +400,8 @@ After=docker.service
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=/opt/ai4devs
-ExecStart=/usr/local/bin/docker-compose up -d
-ExecStop=/usr/local/bin/docker-compose down
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
 TimeoutStartSec=0
 
 [Install]

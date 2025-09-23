@@ -412,4 +412,70 @@ sudo tail -f /var/log/ai4devs-deployment.log
 ```
 
 🎯 **Con este setup, tendrás un deployment completo de la aplicación con observabilidad enterprise-grade en menos de 15 minutos.**
+
+---
+
+## 📋 **APIs Disponibles**
+
+### **Endpoints de la Aplicación** (Puerto 8080)
+
+| Método | Endpoint | Descripción | Ejemplo |
+|--------|----------|-------------|---------|
+| **GET** | `/` | Health check básico | `curl http://[IP]:8080/` |
+| **GET** | `/candidates` | Listar todos los candidatos | `curl http://[IP]:8080/candidates` |
+| **GET** | `/candidates/:id` | Obtener candidato por ID | `curl http://[IP]:8080/candidates/1` |
+| **POST** | `/candidates` | Crear nuevo candidato | Ver ejemplo abajo |
+| **GET** | `/positions` | Listar todas las posiciones | `curl http://[IP]:8080/positions` |
+| **GET** | `/positions/:id` | Obtener posición por ID | `curl http://[IP]:8080/positions/1` |
+| **GET** | `/applications` | Listar todas las aplicaciones | `curl http://[IP]:8080/applications` |
+| **GET** | `/companies` | Listar todas las compañías | `curl http://[IP]:8080/companies` |
+| **GET** | `/employees` | Listar todos los empleados | `curl http://[IP]:8080/employees` |
+
+### **Ejemplos de Uso**
+
+**Consultar datos básicos:**
+```bash
+# Ver todos los candidatos
+curl http://[PUBLIC_IP]:8080/candidates
+
+# Ver todas las posiciones disponibles  
+curl http://[PUBLIC_IP]:8080/positions
+
+# Ver todas las compañías
+curl http://[PUBLIC_IP]:8080/companies
+```
+
+**Crear un nuevo candidato:**
+```bash
+curl -X POST http://[PUBLIC_IP]:8080/candidates \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Juan",
+    "lastName": "Pérez", 
+    "email": "juan.perez@email.com",
+    "phone": "555-0123",
+    "address": "Calle Principal 123",
+    "educations": [{
+      "institution": "Universidad Nacional",
+      "title": "Ingeniería de Sistemas",
+      "startDate": "2020-01-01",
+      "endDate": "2024-01-01"
+    }],
+    "workExperiences": [{
+      "company": "Tech Corp",
+      "position": "Desarrollador",
+      "description": "Desarrollo web",
+      "startDate": "2024-02-01"
+    }]
+  }'
+```
+
+### **URLs de Acceso**
+
+Una vez desplegado, reemplaza `[PUBLIC_IP]` con la IP pública de tu instancia:
+
+- **Frontend**: `http://[PUBLIC_IP]:3000`
+- **Backend API**: `http://[PUBLIC_IP]:8080`
+- **Ejemplo**: `http://44.252.128.128:8080/candidates`
+
 ENDFILE < /dev/null

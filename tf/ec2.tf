@@ -36,13 +36,21 @@ resource "aws_instance" "monorepo_instance" {
     log "Verifying nvm installation..."
     nvm --version
     
-    # Install Node.js LTS 18 (compatible with Amazon Linux 2)
-    log "Installing Node.js LTS 18 (Amazon Linux 2 compatible)..."
-    nvm install 18
+    # Install Node.js 18 using AWS pre-compiled binaries (Amazon Linux 2 compatible)
+    log "Installing Node.js 18 using AWS pre-compiled binaries..."
+    wget -nv https://d3rnber7ry90et.cloudfront.net/linux-x86_64/node-v18.17.1.tar.gz
+    mkdir -p /usr/local/lib/node
+    tar -xf node-v18.17.1.tar.gz
+    mv node-v18.17.1 /usr/local/lib/node/nodejs
     
-    # Use the installed Node.js version
-    log "Setting Node.js 18 as default version..."
-    nvm use 18
+    # Create symlinks for global access
+    ln -s /usr/local/lib/node/nodejs/bin/node /usr/local/bin/node
+    ln -s /usr/local/lib/node/nodejs/bin/npm /usr/local/bin/npm
+    ln -s /usr/local/lib/node/nodejs/bin/npx /usr/local/bin/npx
+    
+    # Add to PATH
+    echo 'export PATH=/usr/local/lib/node/nodejs/bin:$PATH' >> /home/ec2-user/.bashrc
+    export PATH=/usr/local/lib/node/nodejs/bin:$PATH
     
     # Verify Node.js installation
     log "Verifying Node.js installation..."
@@ -310,10 +318,8 @@ EOL
     # Run Prisma migrations first (before starting containers)
     cd /opt/ai4devs/backend
     
-    # Load nvm and use Node.js for migrations
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm use 18
+    # Use Node.js for migrations (already installed globally)
+    export PATH=/usr/local/lib/node/nodejs/bin:$PATH
     
     # Install dependencies for migration process
     npm install --production=false

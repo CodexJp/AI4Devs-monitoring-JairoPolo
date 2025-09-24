@@ -270,6 +270,38 @@ Una vez desplegado, puedes verificar el monitoreo en:
 - service:ai4devs-monorepo
 - region:us-west-2
 
+#### 📸 **Evidencias de Observabilidad Funcionando**
+
+Las siguientes capturas demuestran que la integración con Datadog está funcionando correctamente:
+
+**1. Vista General de Hosts**
+![Lista de Hosts](docs/screenshots/host-list.png)
+*Vista principal mostrando la instancia EC2 siendo monitoreada por Datadog*
+
+**2. Detalles del Host EC2**
+![Detalles del Host](docs/screenshots/host-list-detail.png)
+*Información detallada del host con métricas de CPU, memoria y red en tiempo real*
+
+**3. Contenedores Docker Monitoreados**
+![Contenedores Docker](docs/screenshots/host-list-container.png)
+*Lista de contenedores Docker (PostgreSQL, Backend, Frontend) siendo monitoreados*
+
+**4. Dashboard de Contenedores**
+![Dashboard de Contenedores](docs/screenshots/container-dashboard.png)
+*Dashboard específico mostrando métricas de los contenedores de la aplicación*
+
+**5. Recursos de Contenedores**
+![Recursos de Contenedores](docs/screenshots/container-resources.png)
+*Métricas detalladas de uso de recursos por contenedor*
+
+**6. Logs de Contenedores**
+![Logs de Contenedores](docs/screenshots/host-list-logs.png)
+*Logs en tiempo real de los contenedores Docker*
+
+**7. Explorador de Logs Centralizado**
+![Explorador de Logs](docs/screenshots/logs-explorer.png)
+*Vista del explorador de logs con filtros y búsqueda avanzada*
+
 #### 🔄 Gestión del Despliegue
 
 **Verificar estado**:

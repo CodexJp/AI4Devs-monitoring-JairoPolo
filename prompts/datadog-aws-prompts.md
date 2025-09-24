@@ -196,6 +196,69 @@ Tengo un par de dudas con la visualización de los registros de mi aplicaciój e
 Toca implementar modificaciones adicionales en el manifiesto del provider de Datadog o algo así? mi intención es tener visibilidad de lo que acontece dentro de mis contenedores pero en Datadog, para tener toda la observabilidad centralizada
 ```
 
+### Prompt #15: Generación de PR
+
+```markdown
+Actúa como un desarrollador senior experto en documentación técnica. 
+
+Analiza el contexto disponible del proyecto y genera el cuerpo completo de un Pull Request para la rama actual. 
+
+**Instrucciones de análisis automático:**
+- Examina el archivo @eplan.md para extraer historias de usuario desarrolladas
+- Analiza los archivos modificados/creados mediante git diff para entender los cambios
+- Identifica el stack tecnológico basado en la estructura del proyecto
+- Extrae ejemplos de respuesta de archivos de test o documentación API disponibles
+- Revisa commits recientes para entender el alcance del desarrollo
+
+**Formato de salida:** Markdown
+
+**Estructura requerida:**
+
+# Pull Request: [Título auto-generado basado en las funcionalidades]
+
+## 📋 Resumen
+[Descripción concisa de 2-3 líneas de los incrementos funcionales desarrollados]
+
+## 🚀 Historia de Usuario #[N]: [Nombre de la funcionalidad]
+
+### 📝 Descripción de la Historia de Usuario
+[Formato: Como... Quiero... Para que... - extraído del execution plan]
+
+### 🔄 Diagrama de Secuencia
+[Diagrama auto-generado mostrando el flujo de interacción entre actores, frontend, backend y base de datos en formato mermaid]
+
+### 🏗️ Implementación Técnica
+**📁 Archivos creados:**
+- [Lista auto-generada de archivos nuevos]
+
+**🔧 Archivos modificados:**
+- [Lista auto-generada con descripción de cambios principales]
+
+### 🧪 Evidencia de Pruebas de Aceptación
+[Tabla con casos de prueba ejecutados y resultados - extraer de tests disponibles]
+
+### 💻 Ejemplo de Consumo
+[Ejemplo real de request/response si está disponible]
+
+---
+
+[Repetir sección por cada historia de usuario implementada]
+
+## ✅ Criterios de Aceptación Completados
+- [ ] [Auto-generar checkboxes basado en las funcionalidades implementadas]
+
+**Estado:** ✅ READY FOR REVIEW
+
+**Restricciones:**
+- Sé conciso, no verboso
+- Enfócate en indicadores críticos de incrementos funcionales
+- Incluye solo evidencia relevante de pruebas de aceptación
+- Usa emojis para mejorar legibilidad
+- Si no encuentras información específica, omítela en lugar de inventarla
+- SIEMPRE incluye diagrama de secuencia Mermaid para cada historia de usuario (es crítico para comprensión del equipo)
+
+Genera el cuerpo del PR analizando automáticamente el contexto disponible.
+```
 
 
 

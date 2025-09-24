@@ -125,6 +125,31 @@ Network: Docker bridge (ai4devs-network)
 - **Solución**: Agregado prisma.seed en package.json + seed.js file
 - **Estado**: ✅ Resuelto
 
+### **6. Sobreprovisionamiento de Infraestructura**
+- **Issue**: Configuración inicial con 2 instancias EC2 separadas (backend + frontend) vs 1 instancia requerida
+- **Solución**: Refactorización a arquitectura single-instance con Docker Compose
+- **Estado**: ✅ Resuelto
+
+### **7. Complejidad Innecesaria de S3/IAM**
+- **Issue**: S3 bucket y IAM roles sobreprovisionados para distribución de código
+- **Solución**: Eliminación de S3, simplificación a deployment directo via git clone
+- **Estado**: ✅ Resuelto
+
+### **8. Deployment con Código Ficticio**
+- **Issue**: User-data desplegaba aplicación ficticia en lugar del código real del repositorio
+- **Solución**: Implementación de git clone + docker-compose del código real
+- **Estado**: ✅ Resuelto
+
+### **9. Node.js Installation Complexity**
+- **Issue**: Múltiples métodos fallidos de instalación de Node.js en Amazon Linux 2
+- **Solución**: Implementación con AWS pre-compiled binaries y symlinks globales
+- **Estado**: ✅ Resuelto
+
+### **10. APM y Logs Visibility en Datadog**
+- **Issue**: Servicios no aparecían en Datadog APM, logs no visibles en Explorer
+- **Solución**: Configuración de Datadog Agent con APM habilitado y tags apropiados
+- **Estado**: ✅ Resuelto
+
 ---
 
 ## 🎯 **CRITERIOS DE ÉXITO ALCANZADOS**

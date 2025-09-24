@@ -289,7 +289,7 @@ RUN npm run build
 RUN mkdir -p uploads
 
 # Create instrumented startup script
-RUN cat > start-with-apm.js << 'EOFS'
+RUN cat > start-with-apm.js << 'END_APM_SCRIPT'
 // Initialize Datadog tracing BEFORE any other imports
 require('dd-trace').init({
   service: process.env.DD_SERVICE || 'ai4devs-backend',
@@ -303,7 +303,7 @@ require('dd-trace').init({
 
 // Start the main application
 require('./dist/index.js');
-EOFS
+END_APM_SCRIPT
 
 # Expose port
 EXPOSE 8080

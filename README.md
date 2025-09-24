@@ -430,6 +430,60 @@ sudo tail -f /var/log/ai4devs-deployment.log
 
 *Este log contiene todas las etapas marcadas con timestamps desde el clone del repositorio hasta el deployment completo.*
 
+#### 🚨 **Problemas Resueltos Durante el Desarrollo**
+
+Durante la implementación de la observabilidad con Datadog y el deployment automatizado, se resolvieron múltiples problemas técnicos:
+
+### **1. Problema Regional**
+- **Issue**: Provider configurado para us-east-1, instancia en us-west-2
+- **Solución**: Actualizado provider.tf a us-west-2
+- **Estado**: ✅ Resuelto
+
+### **2. AMI Incompatibility**  
+- **Issue**: AMI original no existía en us-west-2
+- **Solución**: Automated AMI query para latest Amazon Linux 2
+- **Estado**: ✅ Resuelto
+
+### **3. Apple M1 Terraform Timeout**
+- **Issue**: Operaciones Terraform timeout en Apple Silicon
+- **Solución**: `export GODEBUG=asyncpreemptoff=1`
+- **Estado**: ✅ Resuelto
+
+### **4. OpenSSL/Prisma Compatibility**
+- **Issue**: Backend crasheaba con error OpenSSL en Alpine Linux
+- **Solución**: Cambio a `node:18-slim` + instalación OpenSSL automática
+- **Estado**: ✅ Resuelto completamente
+
+### **5. Seeding Configuration**
+- **Issue**: Prisma seed no configurado correctamente
+- **Solución**: Agregado prisma.seed en package.json + seed.js file
+- **Estado**: ✅ Resuelto
+
+### **6. Sobreprovisionamiento de Infraestructura**
+- **Issue**: Configuración inicial con 2 instancias EC2 separadas (backend + frontend) vs 1 instancia requerida
+- **Solución**: Refactorización a arquitectura single-instance con Docker Compose
+- **Estado**: ✅ Resuelto
+
+### **7. Complejidad Innecesaria de S3/IAM**
+- **Issue**: S3 bucket y IAM roles sobreprovisionados para distribución de código
+- **Solución**: Eliminación de S3, simplificación a deployment directo via git clone
+- **Estado**: ✅ Resuelto
+
+### **8. Deployment con Código Ficticio**
+- **Issue**: User-data desplegaba aplicación ficticia en lugar del código real del repositorio
+- **Solución**: Implementación de git clone + docker-compose del código real
+- **Estado**: ✅ Resuelto
+
+### **9. Node.js Installation Complexity**
+- **Issue**: Múltiples métodos fallidos de instalación de Node.js en Amazon Linux 2
+- **Solución**: Implementación con AWS pre-compiled binaries y symlinks globales
+- **Estado**: ✅ Resuelto
+
+### **10. APM y Logs Visibility en Datadog**
+- **Issue**: Servicios no aparecían en Datadog APM, logs no visibles en Explorer
+- **Solución**: Configuración de Datadog Agent con APM habilitado y tags apropiados
+- **Estado**: ✅ Resuelto
+
 #### 📁 Estructura Terraform
 
 ```

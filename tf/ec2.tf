@@ -288,32 +288,15 @@ RUN npm run build
 # Create uploads directory
 RUN mkdir -p uploads
 
-# Create instrumented startup script
-RUN cat > start-with-apm.js << 'END_APM_SCRIPT'
-// Initialize Datadog tracing BEFORE any other imports
-require('dd-trace').init({
-  service: process.env.DD_SERVICE || 'ai4devs-backend',
-  env: process.env.DD_ENV || 'production',
-  version: process.env.DD_VERSION || '1.0.0',
-  hostname: process.env.DD_AGENT_HOST || 'datadog-agent',
-  port: process.env.DD_TRACE_AGENT_PORT || 8126,
-  logInjection: true,
-  analytics: true
-});
-
-// Start the main application
-require('./dist/index.js');
-END_APM_SCRIPT
-
 # Expose port
 EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+  CMD curl -f http://localhost:8080/ || exit 1
 
-# Start the application with APM instrumentation
-CMD ["node", "start-with-apm.js"]
+# Start the application directly
+CMD ["node", "dist/index.js"]
 EOL
 
     # Frontend Dockerfile

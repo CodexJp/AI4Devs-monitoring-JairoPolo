@@ -78,37 +78,8 @@ resource "aws_instance" "monorepo_instance" {
     # Wait for Docker to be ready
     sleep 10
     
-    # Datadog Agent installation
-    log "Installing Datadog Agent..."
-    DD_API_KEY="${var.datadog_api_key}" \
-    DD_SITE="us3.datadoghq.com" \
-    DD_APM_ENABLED=true \
-    DD_LOGS_ENABLED=true \
-    bash -c "$(curl -L https://install.datadoghq.com/scripts/install_script.sh)"
-    
-    # Configure Datadog tags and integrations
-    log "Configuring Datadog Agent..."
-    cat >> /etc/datadog-agent/datadog.yaml << 'EOL'
-tags: env:production, service:ai4devs-monorepo, region:us-west-2, component:full-stack
-logs_enabled: true
-apm_config:
-  enabled: true
-  env: production
-process_config:
-  enabled: "true"
-EOL
-    
-    # Enable Docker integration for Datadog
-    mkdir -p /etc/datadog-agent/conf.d/docker.d/
-    cat > /etc/datadog-agent/conf.d/docker.d/conf.yaml << 'EOL'
-init_config:
-
-instances:
-  - url: "unix://var/run/docker.sock"
-    new_tag_names: true
-EOL
-    
-    systemctl restart datadog-agent
+    # Note: Using containerized Datadog Agent instead of host-based installation
+    log "Datadog Agent will be deployed as a container service for better observability"
     
     # Application setup - Clone real repository
     log "Cloning real AI4Devs repository..."
@@ -159,11 +130,39 @@ EOL
         cp docker-compose.yml docker-compose.yml.backup
     fi
     
-    # Create production docker-compose.yml
+    # Create production docker-compose.yml with Datadog Agent
     cat > docker-compose.yml << 'EOL'
 version: "3.8"
 
 services:
+  # Datadog Agent - Container-based for proper observability
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:latest
+    container_name: datadog-agent
+    restart: always
+    environment:
+      - DD_API_KEY=${var.datadog_api_key}
+      - DD_SITE=us3.datadoghq.com
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_LOGS_CONFIG_DOCKER_CONTAINER_USE_FILE=true
+      - DD_CONTAINER_EXCLUDE="name:datadog-agent"
+      - DD_ENV=production
+      - DD_TAGS="env:production,service:ai4devs-monorepo,region:us-west-2"
+      - DD_PROCESS_CONFIG_PROCESS_COLLECTION_ENABLED=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /opt/datadog-agent/run:/opt/datadog-agent/run:rw
+    networks:
+      - ai4devs-network
+    pid: host
+    privileged: true
+
   # PostgreSQL Database
   db:
     image: postgres:15
@@ -186,7 +185,7 @@ services:
     labels:
       - "com.datadoghq.ad.logs=[{\"source\":\"postgresql\",\"service\":\"ai4devs-db\"}]"
 
-  # Backend API - Real TypeScript Backend
+  # Backend API - Real TypeScript Backend with APM
   backend:
     build:
       context: ./backend
@@ -199,11 +198,16 @@ services:
       - DD_ENV=production
       - DD_SERVICE=ai4devs-backend
       - DD_VERSION=1.0.0
+      - DD_AGENT_HOST=datadog-agent
+      - DD_TRACE_AGENT_PORT=8126
+      - DD_LOGS_INJECTION=true
     ports:
       - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
+      datadog-agent:
+        condition: service_started
     networks:
       - ai4devs-network
     volumes:
@@ -232,6 +236,7 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+      - datadog-agent
     networks:
       - ai4devs-network
     labels:
@@ -253,7 +258,7 @@ EOL
     # Create Dockerfiles for real application
     log "Creating Dockerfiles for backend and frontend..."
     
-    # Backend Dockerfile
+    # Backend Dockerfile with Datadog APM instrumentation
     cat > backend/Dockerfile << 'EOL'
 FROM node:18-slim
 
@@ -265,8 +270,8 @@ RUN apt-get update && apt-get install -y openssl ca-certificates curl
 # Copy package files first for better layer caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies including dd-trace for APM
+RUN npm install && npm install dd-trace
 
 # Copy Prisma schema first to generate client
 COPY prisma ./prisma/
@@ -283,6 +288,23 @@ RUN npm run build
 # Create uploads directory
 RUN mkdir -p uploads
 
+# Create instrumented startup script
+RUN cat > start-with-apm.js << 'EOFS'
+// Initialize Datadog tracing BEFORE any other imports
+require('dd-trace').init({
+  service: process.env.DD_SERVICE || 'ai4devs-backend',
+  env: process.env.DD_ENV || 'production',
+  version: process.env.DD_VERSION || '1.0.0',
+  hostname: process.env.DD_AGENT_HOST || 'datadog-agent',
+  port: process.env.DD_TRACE_AGENT_PORT || 8126,
+  logInjection: true,
+  analytics: true
+});
+
+// Start the main application
+require('./dist/index.js');
+EOFS
+
 # Expose port
 EXPOSE 8080
 
@@ -290,8 +312,8 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
-# Start the application
-CMD ["npm", "start"]
+# Start the application with APM instrumentation
+CMD ["node", "start-with-apm.js"]
 EOL
 
     # Frontend Dockerfile

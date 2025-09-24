@@ -1,7 +1,9 @@
 import { Router } from 'express';
-import { addCandidate, getCandidateById, updateCandidateStageController } from '../presentation/controllers/candidateController';
+import { addCandidate, getCandidateById, updateCandidateStageController, getAllCandidatesController } from '../presentation/controllers/candidateController';
 
 const router = Router();
+
+router.get('/', getAllCandidatesController);
 
 router.post('/', async (req, res) => {
   try {

@@ -65,6 +65,16 @@ export const findCandidateById = async (id: number): Promise<Candidate | null> =
     }
 };
 
+export const getAllCandidates = async (): Promise<Candidate[]> => {
+    try {
+        const candidates = await Candidate.findAll();
+        return candidates;
+    } catch (error) {
+        console.error('Error al obtener todos los candidatos:', error);
+        throw new Error('Error al recuperar los candidatos');
+    }
+};
+
 export const updateCandidateStage = async (id: number, applicationIdNumber: number, currentInterviewStep: number) => {
     try {
         const application = await Application.findOneByPositionCandidateId(applicationIdNumber, id);

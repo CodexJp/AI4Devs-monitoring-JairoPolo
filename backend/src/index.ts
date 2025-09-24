@@ -37,6 +37,12 @@ app.use(cors({
   credentials: true
 }));
 
+// Logging middleware should come BEFORE routes to log all requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
 // Import and use candidateRoutes
 app.use('/candidates', candidateRoutes);
 
@@ -45,11 +51,6 @@ app.post('/upload', uploadFile);
 
 // Route to get candidates by position
 app.use('/positions', positionRoutes);
-
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
 
 const port = 8080;
 

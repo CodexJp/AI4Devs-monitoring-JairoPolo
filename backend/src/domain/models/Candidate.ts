@@ -162,4 +162,37 @@ export class Candidate {
         if (!data) return null;
         return new Candidate(data);
     }
+
+    static async findAll(): Promise<Candidate[]> {
+        const data = await prisma.candidate.findMany({
+            include: {
+                educations: true,
+                workExperiences: true,
+                resumes: true,
+                applications: {
+                    include: {
+                        position: {
+                            select: {
+                                id: true,
+                                title: true
+                            }
+                        },
+                        interviews: {
+                            select: {
+                                interviewDate: true,
+                                interviewStep: {
+                                    select: {
+                                        name: true
+                                    }
+                                },
+                                notes: true,
+                                score: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        return data.map(candidate => new Candidate(candidate));
+    }
 }

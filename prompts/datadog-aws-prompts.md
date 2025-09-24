@@ -185,17 +185,16 @@ ahora mismo tengo mi instancia ec2 apagada, anoche la apagué para no incurrir e
 El que hayas definido un backend y un frontend ficticios porque el job de incluye hacer clone del repo, está muy mal, debe ser mi código el que corra en la nube, nada de crear un frontend y y backend nuevo si es que ya lo tengo en mi repositorio! esto nunca debió hacerse desde un principio. Incluyamos el paso de hacer clone del repositorio y preparar todo el deploy con docker-componse. Debe subir el frontend, el backend y la base de datos con los datos sincronizados de la migración de prisma. Todo debe estar realmente conectado! 
 ```
 
+### Prompt #14: Prompt para mejorar la observabilidad en DataDog
 
-
-
-
-
-
-
+```markdown
 Tengo un par de dudas con la visualización de los registros de mi aplicaciój en Datadog: 
 1. En la parte de APM -> Services, no aparece mi servicio, puedo activarlo con la configuración del provider de datadog o la configuración de mis manifiestos?  
    
 2. No veo en que parte puedo ver los logs de la aplicación, tanto los de frontend como los de backend desde Datadog. Si entro a: Logs -> Explorer, no sale nada
+
+Toca implementar modificaciones adicionales en el manifiesto del provider de Datadog o algo así? mi intención es tener visibilidad de lo que acontece dentro de mis contenedores pero en Datadog, para tener toda la observabilidad centralizada
+```
 
 
 

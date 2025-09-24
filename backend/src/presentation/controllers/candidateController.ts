@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { addCandidate, findCandidateById, updateCandidateStage } from '../../application/services/candidateService';
+import { addCandidate, findCandidateById, updateCandidateStage, getAllCandidates } from '../../application/services/candidateService';
 
 export const addCandidateController = async (req: Request, res: Response) => {
     try {
@@ -57,4 +57,15 @@ export const updateCandidateStageController = async (req: Request, res: Response
         }
     }
 };
+
+export const getAllCandidatesController = async (req: Request, res: Response) => {
+    try {
+        const candidates = await getAllCandidates();
+        res.json(candidates);
+    } catch (error) {
+        console.error('Error getting all candidates:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 export { addCandidate };
